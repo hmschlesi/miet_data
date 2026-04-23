@@ -5,116 +5,153 @@ import os
 
 DB_PATH = 'db/miet_data.db'
 
-def lookup_historical_rent(zip_code, size, building_year, wohnlage=None):
-    """
-    Looks up the base rent from ALL matching Mietspiegel catalogs in the database.
-    Returns a dictionary grouped by the catalog's version year.
-    """
-    if not os.path.exists(DB_PATH):
-        return {"error": f"Database not found at {DB_PATH}. Please run the setup script first."}
+WOHNLAGE_MAPPING = {
+    "1": "low",
+    "2": "mid",
+    "3": "good"
+}
 
+def get_zip_distribution(zip_code):
+    """Analyzes the address database to find the % distribution of quality levels."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    cursor.execute('SELECT wohnlage, COUNT(*) FROM berlin_addresses WHERE zip = ? GROUP BY wohnlage', (str(zip_code),))
+    rows = cursor.fetchall()
+    conn.close()
+    
+    if not rows: return None
 
-    # 1. Identify ALL Catalogs via ZIP Code (Ignoring is_active)
+    total = sum(row[1] for row in rows)
+    dist = {v: 0.0 for v in WOHNLAGE_MAPPING.values()}
+    for val, count in rows:
+        key = WOHNLAGE_MAPPING.get(str(val))
+        if key: dist[key] = count / total
+    return dist
+
+def get_wohnlage_from_address(street, house_nr, zip_code):
+    """Finds exact quality for a specific address."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    clean_street = street.replace(" ", "").replace(".", "").replace("ß", "ss").lower()
+    query = '''
+        SELECT wohnlage, district FROM berlin_addresses 
+        WHERE LOWER(REPLACE(REPLACE(REPLACE(street, ' ', ''), '.', ''), 'ß', 'ss')) LIKE ?
+          AND house_nr = ? AND zip = ? LIMIT 1
+    '''
+    cursor.execute(query, (f"{clean_street}%", str(house_nr), str(zip_code)))
+    result = cursor.fetchone()
+    conn.close()
+    if result: return WOHNLAGE_MAPPING.get(str(result[0]), "mid"), result[1]
+    return None, None
+
+def lookup_historical_rent(zip_code, size, building_year, street=None, house_nr=None):
+    if not os.path.exists(DB_PATH):
+        return {"error": "Database not found."}
+
+    # 1. Prepare Weights for Weighted Average
+    zip_weights = get_zip_distribution(zip_code)
+    
+    # 2. Identify Specific Quality if address is given
+    address_quality = None
+    district = "Unknown"
+    address_found = False
+
+    if street and house_nr:
+        address_quality, district = get_wohnlage_from_address(street, house_nr, zip_code)
+        if address_quality:
+            address_found = True
+
+    # 3. Fetch Catalogs & Grid Data
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
     cursor.execute('''
-        SELECT id, display_name, version_year, calculation_logic 
-        FROM mietspiegel_catalog 
-        WHERE ? BETWEEN zip_code_min AND zip_code_max
+        SELECT id, version_year FROM mietspiegel_catalog 
+        WHERE ? BETWEEN zip_code_min AND zip_code_max 
         ORDER BY version_year DESC
     ''', (zip_code,))
-    
     catalogs = cursor.fetchall()
-    
-    if not catalogs:
-        conn.close()
-        return {"error": f"No Mietspiegel catalogs found for ZIP code {zip_code}."}
 
-    # Assume the ZIP code maps to the same city across years
-    city_name = catalogs[0][1] 
-    historical_data = []
-
-    # 2. Iterate through each matching catalog and query its specific grid
-    for catalog in catalogs:
-        catalog_id, _, version_year, calc_logic = catalog
-        
-        query = '''
-            SELECT wohnlage, rent_sqm_min, rent_sqm_avg, rent_sqm_max, location_flag
+    history = []
+    for cat_id, year in catalogs:
+        cursor.execute('''
+            SELECT wohnlage, rent_sqm_min, rent_sqm_avg, rent_sqm_max
             FROM mietspiegel
-            WHERE catalog_id = ?
-              AND ? BETWEEN buildingyear_min AND buildingyear_max
+            WHERE catalog_id = ? AND ? BETWEEN buildingyear_min AND buildingyear_max
               AND ? >= size_lower AND ? <= size_upper
-        '''
-        params = [catalog_id, building_year, size, size]
+        ''', (cat_id, building_year, size, size))
         
-        # Dynamically append the Wohnlage filter if provided
-        if wohnlage:
-            query += " AND wohnlage = ?"
-            params.append(wohnlage.lower())
+        rows = cursor.fetchall()
+        grid_data = {row[0]: {"min": row[1], "avg": row[2], "max": row[3]} for row in rows}
 
-        cursor.execute(query, params)
-        results = cursor.fetchall()
+        # --- A. Calculate Weighted Average ---
+        w_min = w_avg = w_max = 0.0
+        if zip_weights:
+            for q_level, weight in zip_weights.items():
+                if q_level in grid_data:
+                    w_min += grid_data[q_level]["min"] * weight
+                    w_avg += grid_data[q_level]["avg"] * weight
+                    w_max += grid_data[q_level]["max"] * weight
+        else:
+            # Absolute fallback to Mid if no zip distribution exists
+            if "mid" in grid_data:
+                w_min, w_avg, w_max = grid_data["mid"]["min"], grid_data["mid"]["avg"], grid_data["mid"]["max"]
 
-        # Format the results for this specific year
-        spans = []
-        for row in results:
-            spans.append({
-                "wohnlage": row[0],
-                "rent_min": row[1],
-                "rent_avg": row[2],
-                "rent_max": row[3],
-                "location_flag": row[4]
-            })
+        # --- B. Get Address-Specific Values ---
+        specific_vals = None
+        if address_found and address_quality in grid_data:
+            specific_vals = grid_data[address_quality]
 
-        historical_data.append({
-            "version_year": version_year,
-            "calculation_logic": calc_logic,
-            "results": spans
+        history.append({
+            "year": year,
+            "weighted": {"min": w_min, "avg": w_avg, "max": w_max},
+            "specific": specific_vals,
+            "details": grid_data
         })
 
     conn.close()
 
+    # Contextual info for the title
+    if address_found:
+        context = f"Exact Address: {street} {house_nr} ({district}) - Quality: {address_quality.upper()}"
+    else:
+        parts = [f"{int(v*100)}% {k.upper()}" for k, v in zip_weights.items() if v > 0] if zip_weights else ["100% MID"]
+        context = f"Weighted ZIP {zip_code} Average ({', '.join(parts)})"
+
     return {
-        "status": "Success",
-        "city": city_name,
-        "history": historical_data
+        "history": history, 
+        "context": context, 
+        "address_found": address_found,
+        "district": district
     }
 
 def main():
-    parser = argparse.ArgumentParser(description="Historical Mietspiegel Base Rent Lookup CLI")
-    parser.add_argument("--zip", type=int, required=True, help="5-digit ZIP code (e.g., 10115)")
-    parser.add_argument("--size", type=float, required=True, help="Apartment size in sqm (e.g., 65.5)")
-    parser.add_argument("--year", type=int, required=True, help="Year of construction (e.g., 1980)")
-    parser.add_argument("--wohnlage", type=str, choices=['low', 'mid', 'good'], help="Optional: Specific area quality (low, mid, good)")
-    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--zip", type=int, required=True)
+    parser.add_argument("--size", type=float, required=True)
+    parser.add_argument("--year", type=int, required=True)
+    parser.add_argument("--street", type=str)
+    parser.add_argument("--nr", type=str)
     args = parser.parse_args()
 
-    wohnlage_str = f" | Wohnlage: {args.wohnlage.upper()}" if args.wohnlage else ""
-    print(f"\n🔍 Looking up historical base rent for: {args.size} sqm | Built {args.year} | ZIP: {args.zip}{wohnlage_str}")
-    print("-" * 75)
-    
-    response = lookup_historical_rent(args.zip, args.size, args.year, args.wohnlage)
+    data = lookup_historical_rent(args.zip, args.size, args.year, args.street, args.nr)
+    if "error" in data:
+        print(f"❌ {data['error']}"); return
 
-    if "error" in response:
-        print(f"❌ Error: {response['error']}")
-        sys.exit(1)
+    print(f"\n📍 {data['context']}")
+    print(f"📏 {args.size} sqm | 🏗️ Built {args.year}\n")
 
-    print(f"📍 City: {response['city']}\n")
-    
-    # Loop through the history and print the progression
-    for entry in response['history']:
-        print(f"📅 Mietspiegel {entry['version_year']} (Logic: {entry['calculation_logic']})")
+    for entry in data['history']:
+        print(f"📅 Mietspiegel {entry['year']}")
         
-        if not entry['results']:
-            print("   ⚠️ No matching grid data found in this catalog for these parameters.\n")
-            continue
-            
-        for span in entry['results']:
-            loc_str = f" (Location: {span['location_flag']})" if span['location_flag'] != 'ALL' else ""
-            print(f"   ▶ Wohnlage: {span['wohnlage'].upper()}{loc_str}")
-            print(f"      Min: {span['rent_min']:.2f} €/sqm")
-            print(f"      Avg: {span['rent_avg']:.2f} €/sqm")
-            print(f"      Max: {span['rent_max']:.2f} €/sqm\n")
+        # 1. Print Specific Result if available
+        if entry['specific']:
+            s = entry['specific']
+            print(f"   [ADDRESS]   Min: {s['min']:>5.2f} | Avg: {s['avg']:>5.2f} | Max: {s['max']:>5.2f}")
+        
+        # 2. Print Weighted Result
+        w = entry['weighted']
+        print(f"   [ZIP AVG]   Min: {w['min']:>5.2f} | Avg: {w['avg']:>5.2f} | Max: {w['max']:>5.2f}")
+        print("-" * 55)
 
 if __name__ == "__main__":
     main()
