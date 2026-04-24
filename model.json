@@ -1,0 +1,532 @@
+{
+  "$defs": {
+    "BadGroup": {
+      "description": "Merkmalgruppe 1: Bad/WC/G\u00e4ste-WC [cite: 402, 404]",
+      "properties": {
+        "neg_kein_handwaschbecken": {
+          "default": false,
+          "description": "No washbasin or only a small one (50x25cm or smaller) [cite: 407-410].",
+          "title": "Neg Kein Handwaschbecken",
+          "type": "boolean"
+        },
+        "neg_wc_ohne_lueftung": {
+          "default": false,
+          "description": "WC without ventilation or exhaust [cite: 411-412].",
+          "title": "Neg Wc Ohne Lueftung",
+          "type": "boolean"
+        },
+        "neg_dielenfussboden": {
+          "default": false,
+          "description": "Floorboards in bath not suitable for wet rooms [cite: 413-414].",
+          "title": "Neg Dielenfussboden",
+          "type": "boolean"
+        },
+        "neg_nicht_beheizbar": {
+          "default": false,
+          "description": "Bath not heatable or only wood/coal/electric radiant heater [cite: 415-416, 429].",
+          "title": "Neg Nicht Beheizbar",
+          "type": "boolean"
+        },
+        "neg_warmwasser_unzureichend": {
+          "default": false,
+          "description": "No central hot water, flow heater, or boiler > 60L [cite: 430-433].",
+          "title": "Neg Warmwasser Unzureichend",
+          "type": "boolean"
+        },
+        "neg_bad_ohne_dusche_freistehend": {
+          "default": false,
+          "description": "Bath without separate shower, only freestanding tub in non-modernized bath [cite: 434-436].",
+          "title": "Neg Bad Ohne Dusche Freistehend",
+          "type": "boolean"
+        },
+        "neg_waende_spritzwasser_ungefliest": {
+          "default": false,
+          "description": "Walls not sufficiently tiled in splash zones [cite: 437-438].",
+          "title": "Neg Waende Spritzwasser Ungefliest",
+          "type": "boolean"
+        },
+        "neg_bad_wc_ohne_fenster": {
+          "default": false,
+          "description": "Bath with WC has no window (Not for 1973-1990 East) [cite: 439-440].",
+          "title": "Neg Bad Wc Ohne Fenster",
+          "type": "boolean"
+        },
+        "neg_keine_duschmoeglichkeit": {
+          "default": false,
+          "description": "No shower possibility (e.g., no splash protection or shower head holder) [cite: 441-442].",
+          "title": "Neg Keine Duschmoeglichkeit",
+          "type": "boolean"
+        },
+        "neg_kleines_bad_unter_4qm": {
+          "default": false,
+          "description": "Bath smaller than 4m\u00b2 (Not for 1973-1990 East) [cite: 443-444].",
+          "title": "Neg Kleines Bad Unter 4Qm",
+          "type": "boolean"
+        },
+        "pos_doppel_waschbecken": {
+          "default": false,
+          "description": "Very large basin (min 80cm), double basin, or two separate basins [cite: 456-459].",
+          "title": "Pos Doppel Waschbecken",
+          "type": "boolean"
+        },
+        "pos_hochwertige_ausstattung": {
+          "default": false,
+          "description": "E.g., high-quality sanitary items, high-end bath furniture, corner tub [cite: 460-463].",
+          "title": "Pos Hochwertige Ausstattung",
+          "type": "boolean"
+        },
+        "pos_moderne_entlueftung": {
+          "default": false,
+          "description": "Interior bath with modern controlled ventilation (e.g., humidity sensor) [cite: 464-466].",
+          "title": "Pos Moderne Entlueftung",
+          "type": "boolean"
+        },
+        "pos_zweites_wc_oder_getrennt": {
+          "default": false,
+          "description": "Second WC in apartment or separate bath and WC[cite: 467].",
+          "title": "Pos Zweites Wc Oder Getrennt",
+          "type": "boolean"
+        },
+        "pos_bad_ueber_8qm": {
+          "default": false,
+          "description": "At least one bath larger than 8m\u00b2 .",
+          "title": "Pos Bad Ueber 8Qm",
+          "type": "boolean"
+        },
+        "pos_fussbodenheizung": {
+          "default": false,
+          "description": "Underfloor heating in the bathroom [cite: 470-471].",
+          "title": "Pos Fussbodenheizung",
+          "type": "boolean"
+        },
+        "pos_wand_boden_hochwertig": {
+          "default": false,
+          "description": "High-quality wall/floor covering (Not for 2016-2022) [cite: 472-474].",
+          "title": "Pos Wand Boden Hochwertig",
+          "type": "boolean"
+        },
+        "pos_wandhaengendes_wc": {
+          "default": false,
+          "description": "Wall-hung WC with concealed tank (Not for build after 2002) [cite: 475-478].",
+          "title": "Pos Wandhaengendes Wc",
+          "type": "boolean"
+        },
+        "pos_tuchwaermer": {
+          "default": false,
+          "description": "Towel warmer radiator (Built up to 2001; if electric, all years) [cite: 479-483].",
+          "title": "Pos Tuchwaermer",
+          "type": "boolean"
+        },
+        "pos_separate_dusche": {
+          "default": false,
+          "description": "Additional shower tray or cabin separate from bathtub[cite: 484].",
+          "title": "Pos Separate Dusche",
+          "type": "boolean"
+        },
+        "pos_bodengleiche_dusche": {
+          "default": false,
+          "description": "Floor-level shower (up to 3cm depth) [cite: 485-486].",
+          "title": "Pos Bodengleiche Dusche",
+          "type": "boolean"
+        }
+      },
+      "title": "BadGroup",
+      "type": "object"
+    },
+    "GebaeudeGroup": {
+      "description": "Merkmalgruppe 4: Geb\u00e4ude [cite: 516, 547, 571, 573]",
+      "properties": {
+        "neg_treppenhaus_schlecht": {
+          "default": false,
+          "description": "Entrance/staircase in poor condition [cite: 518-519].",
+          "title": "Neg Treppenhaus Schlecht",
+          "type": "boolean"
+        },
+        "neg_kein_abstellraum_extern": {
+          "default": false,
+          "description": "No private storage room outside apartment (e.g., cellar) [cite: 519-520].",
+          "title": "Neg Kein Abstellraum Extern",
+          "type": "boolean"
+        },
+        "neg_hauseingang_offen": {
+          "default": false,
+          "description": "House entrance freely accessible from outside[cite: 521].",
+          "title": "Neg Hauseingang Offen",
+          "type": "boolean"
+        },
+        "neg_instandhaltung_mangelhaft": {
+          "default": false,
+          "description": "Poor maintenance (e.g., damp masonry, roof/plaster damage) [cite: 522-523].",
+          "title": "Neg Instandhaltung Mangelhaft",
+          "type": "boolean"
+        },
+        "neg_seitenfluegel": {
+          "default": false,
+          "description": "Location in side wing or rear building with dense construction [cite: 524-525].",
+          "title": "Neg Seitenfluegel",
+          "type": "boolean"
+        },
+        "neg_kein_aufzug": {
+          "default": false,
+          "description": "Apartment above 4th floor without elevator (Not for up to 1949)[cite: 526].",
+          "title": "Neg Kein Aufzug",
+          "type": "boolean"
+        },
+        "neg_keine_gegensprechanlage": {
+          "default": false,
+          "description": "No intercom with electric door opener[cite: 527].",
+          "title": "Neg Keine Gegensprechanlage",
+          "type": "boolean"
+        },
+        "neg_waermedaemmung_unzureichend": {
+          "default": false,
+          "description": "Insufficient insulation or heating efficiency (Built before 1995)[cite: 572].",
+          "title": "Neg Waermedaemmung Unzureichend",
+          "type": "boolean"
+        },
+        "neg_energieverbrauch_hoch": {
+          "default": false,
+          "description": "Energy consumption > 145 kWh/(m\u00b2a)[cite: 576].",
+          "title": "Neg Energieverbrauch Hoch",
+          "type": "boolean"
+        },
+        "pos_fahrradraum": {
+          "default": false,
+          "description": "Lockable bike room or secure bike racks on property [cite: 556-557].",
+          "title": "Pos Fahrradraum",
+          "type": "boolean"
+        },
+        "pos_gemeinschaftsraum": {
+          "default": false,
+          "description": "Additional usable rooms outside apartment (e.g., community room)[cite: 558].",
+          "title": "Pos Gemeinschaftsraum",
+          "type": "boolean"
+        },
+        "pos_repraesentativer_eingang": {
+          "default": false,
+          "description": "High-quality/renovated entrance area (e.g., marble, carpets)[cite: 559].",
+          "title": "Pos Repraesentativer Eingang",
+          "type": "boolean"
+        },
+        "pos_instandhaltung_gut": {
+          "default": false,
+          "description": "Above-average building maintenance (e.g., renewed facade/roof; Built up to 2015) [cite: 560-561].",
+          "title": "Pos Instandhaltung Gut",
+          "type": "boolean"
+        },
+        "pos_video_gegensprechanlage": {
+          "default": false,
+          "description": "Intercom with video and electric door opener[cite: 562].",
+          "title": "Pos Video Gegensprechanlage",
+          "type": "boolean"
+        },
+        "pos_aufzug_niedrig": {
+          "default": false,
+          "description": "Elevator provided with fewer than 5 upper floors (Not for after 2010)[cite: 563].",
+          "title": "Pos Aufzug Niedrig",
+          "type": "boolean"
+        },
+        "pos_schwellenfreier_zugang": {
+          "default": false,
+          "description": "Low-threshold access to building and apartment[cite: 564].",
+          "title": "Pos Schwellenfreier Zugang",
+          "type": "boolean"
+        },
+        "pos_waermedaemmung_modern": {
+          "default": false,
+          "description": "Additional insulation or modern heating (Since 2009; for older builds)[cite: 574].",
+          "title": "Pos Waermedaemmung Modern",
+          "type": "boolean"
+        },
+        "pos_energieverbrauch_niedrig": {
+          "default": false,
+          "description": "Energy consumption < 120 kWh/(m\u00b2a)[cite: 578].",
+          "title": "Pos Energieverbrauch Niedrig",
+          "type": "boolean"
+        }
+      },
+      "title": "GebaeudeGroup",
+      "type": "object"
+    },
+    "KuecheGroup": {
+      "description": "Merkmalgruppe 2: K\u00fcche [cite: 445, 487]",
+      "properties": {
+        "neg_kueche_ohne_fenster": {
+          "default": false,
+          "description": "Kitchen without window and sufficient ventilation[cite: 445].",
+          "title": "Neg Kueche Ohne Fenster",
+          "type": "boolean"
+        },
+        "neg_keine_kochmoeglichkeit": {
+          "default": false,
+          "description": "No cooking facility or stove without oven[cite: 447].",
+          "title": "Neg Keine Kochmoeglichkeit",
+          "type": "boolean"
+        },
+        "neg_keine_spuele": {
+          "default": false,
+          "description": "No sink provided[cite: 448].",
+          "title": "Neg Keine Spuele",
+          "type": "boolean"
+        },
+        "neg_warmwasser_unzureichend": {
+          "default": false,
+          "description": "No central hot water, flow heater, or boiler[cite: 449].",
+          "title": "Neg Warmwasser Unzureichend",
+          "type": "boolean"
+        },
+        "neg_nicht_beheizbar": {
+          "default": false,
+          "description": "Kitchen not heatable or only wood/coal heating [cite: 450-451].",
+          "title": "Neg Nicht Beheizbar",
+          "type": "boolean"
+        },
+        "neg_geschirrspueler_nicht_stellbar": {
+          "default": false,
+          "description": "Dishwasher cannot be placed or connected [cite: 452-453].",
+          "title": "Neg Geschirrspueler Nicht Stellbar",
+          "type": "boolean"
+        },
+        "neg_keine_wandfliesen": {
+          "default": false,
+          "description": "No wall tiles or wall protection in work area[cite: 454].",
+          "title": "Neg Keine Wandfliesen",
+          "type": "boolean"
+        },
+        "pos_boden_hochwertig": {
+          "default": false,
+          "description": "E.g., high-quality tiles, linoleum, laminate, parquet, or terrazzo (Built up to 2009) [cite: 488-493].",
+          "title": "Pos Boden Hochwertig",
+          "type": "boolean"
+        },
+        "pos_separate_kueche_gross": {
+          "default": false,
+          "description": "Separate kitchen with at least 14m\u00b2 area[cite: 494].",
+          "title": "Pos Separate Kueche Gross",
+          "type": "boolean"
+        },
+        "pos_einbaukueche": {
+          "default": false,
+          "description": "Fitted kitchen with cabinets, stove, and sink [cite: 495-496].",
+          "title": "Pos Einbaukueche",
+          "type": "boolean"
+        },
+        "pos_ceran_induktion": {
+          "default": false,
+          "description": "Ceran or induction cooktop (Built up to 2001) [cite: 497-498].",
+          "title": "Pos Ceran Induktion",
+          "type": "boolean"
+        },
+        "pos_dunstabzug": {
+          "default": false,
+          "description": "Extractor hood provided[cite: 499].",
+          "title": "Pos Dunstabzug",
+          "type": "boolean"
+        },
+        "pos_geraete_gestellt": {
+          "default": false,
+          "description": "Refrigerator, freezer, or dishwasher provided[cite: 501].",
+          "title": "Pos Geraete Gestellt",
+          "type": "boolean"
+        },
+        "pos_kuechenblock": {
+          "default": false,
+          "description": "Freestanding kitchen island with work surface and cooking/sink[cite: 502].",
+          "title": "Pos Kuechenblock",
+          "type": "boolean"
+        }
+      },
+      "title": "KuecheGroup",
+      "type": "object"
+    },
+    "WohnumfeldGroup": {
+      "description": "Merkmalgruppe 5: Wohnumfeld [cite: 584, 588]",
+      "properties": {
+        "neg_vernachlaessigt": {
+          "default": false,
+          "description": "Location in a heavily neglected environment[cite: 585].",
+          "title": "Neg Vernachlaessigt",
+          "type": "boolean"
+        },
+        "neg_laermbelastung": {
+          "default": false,
+          "description": "High noise (e.g., main road, airport, industry, gastro) [cite: 586-587].",
+          "title": "Neg Laermbelastung",
+          "type": "boolean"
+        },
+        "neg_geruchsbelastung": {
+          "default": false,
+          "description": "Particularly high odor pollution[cite: 592].",
+          "title": "Neg Geruchsbelastung",
+          "type": "boolean"
+        },
+        "neg_kein_fahrradplatz_grundstueck": {
+          "default": false,
+          "description": "No bicycle parking facility on the property[cite: 593].",
+          "title": "Neg Kein Fahrradplatz Grundstueck",
+          "type": "boolean"
+        },
+        "pos_citylage": {
+          "default": false,
+          "description": "Preferred city location near major shopping/service hubs[cite: 596].",
+          "title": "Pos Citylage",
+          "type": "boolean"
+        },
+        "pos_besonders_ruhig": {
+          "default": false,
+          "description": "Particularly quiet (e.g., traffic-calmed, near park)[cite: 597].",
+          "title": "Pos Besonders Ruhig",
+          "type": "boolean"
+        },
+        "pos_gestaltetes_umfeld": {
+          "default": false,
+          "description": "E.g., playground, benches, good lighting/paving (Built before 2002)[cite: 598].",
+          "title": "Pos Gestaltetes Umfeld",
+          "type": "boolean"
+        },
+        "pos_parkplatz_angebot": {
+          "default": false,
+          "description": "Landlord provides sufficient parking spaces nearby[cite: 598].",
+          "title": "Pos Parkplatz Angebot",
+          "type": "boolean"
+        },
+        "pos_mietergarten": {
+          "default": false,
+          "description": "Garden for sole use or with direct access[cite: 598].",
+          "title": "Pos Mietergarten",
+          "type": "boolean"
+        }
+      },
+      "title": "WohnumfeldGroup",
+      "type": "object"
+    },
+    "WohnungGroup": {
+      "description": "Merkmalgruppe 3: Wohnung [cite: 506, 529]",
+      "properties": {
+        "neg_einfachverglasung": {
+          "default": false,
+          "description": "Predominantly single-glazed windows[cite: 507].",
+          "title": "Neg Einfachverglasung",
+          "type": "boolean"
+        },
+        "neg_elektro_unzureichend": {
+          "default": false,
+          "description": "Insufficient electrical installation (no RCD/FI, potential equalization) [cite: 508-509].",
+          "title": "Neg Elektro Unzureichend",
+          "type": "boolean"
+        },
+        "neg_leitungen_auf_putz": {
+          "default": false,
+          "description": "Majority of electrical or water pipes visible on walls [cite: 510-511].",
+          "title": "Neg Leitungen Auf Putz",
+          "type": "boolean"
+        },
+        "neg_waschmaschine_nicht_stellbar": {
+          "default": false,
+          "description": "Washing machine cannot be placed/connected in bath or kitchen[cite: 512].",
+          "title": "Neg Waschmaschine Nicht Stellbar",
+          "type": "boolean"
+        },
+        "neg_schlechter_schnitt": {
+          "default": false,
+          "description": "Poor layout (e.g., walk-through rooms) [cite: 513-514].",
+          "title": "Neg Schlechter Schnitt",
+          "type": "boolean"
+        },
+        "neg_kein_balkon": {
+          "default": false,
+          "description": "No balcony, terrace, loggia, or winter garden[cite: 515].",
+          "title": "Neg Kein Balkon",
+          "type": "boolean"
+        },
+        "pos_einbauschrank": {
+          "default": false,
+          "description": "Built-in closet or storage room within apartment[cite: 530].",
+          "title": "Pos Einbauschrank",
+          "type": "boolean"
+        },
+        "pos_grosser_balkon": {
+          "default": false,
+          "description": "Balcony, terrace, loggia, or winter garden >= 4m\u00b2 [cite: 531-532].",
+          "title": "Pos Grosser Balkon",
+          "type": "boolean"
+        },
+        "pos_fussbodenheizung_ueberwiegend": {
+          "default": false,
+          "description": "Underfloor heating in majority of rooms[cite: 533].",
+          "title": "Pos Fussbodenheizung Ueberwiegend",
+          "type": "boolean"
+        },
+        "pos_aufwaendige_verkleidung": {
+          "default": false,
+          "description": "E.g., stucco or paneling in good condition[cite: 534].",
+          "title": "Pos Aufwaendige Verkleidung",
+          "type": "boolean"
+        },
+        "pos_rohre_unsichtbar": {
+          "default": false,
+          "description": "Heating pipes mostly invisible (Built up to 1990) [cite: 535-538].",
+          "title": "Pos Rohre Unsichtbar",
+          "type": "boolean"
+        },
+        "pos_rolllaeden": {
+          "default": false,
+          "description": "External shutters/roller blinds[cite: 539].",
+          "title": "Pos Rolllaeden",
+          "type": "boolean"
+        },
+        "pos_zimmer_ueber_40qm": {
+          "default": false,
+          "description": "At least one living room larger than 40m\u00b2[cite: 540].",
+          "title": "Pos Zimmer Ueber 40Qm",
+          "type": "boolean"
+        },
+        "pos_barrierearm": {
+          "default": false,
+          "description": "Threshold-free, barrier-free bathroom, or sufficient movement space [cite: 541-544].",
+          "title": "Pos Barrierearm",
+          "type": "boolean"
+        },
+        "pos_boden_hochwertig": {
+          "default": false,
+          "description": "High-quality parquet, stone, or tiles in majority of rooms[cite: 545].",
+          "title": "Pos Boden Hochwertig",
+          "type": "boolean"
+        },
+        "pos_modernes_glas": {
+          "default": false,
+          "description": "Thermal or sound insulation glass (Built before 2002).",
+          "title": "Pos Modernes Glas",
+          "type": "boolean"
+        },
+        "pos_einbruchsicherung": {
+          "default": false,
+          "description": "Additional security for entrance door (e.g., multi-point locking).",
+          "title": "Pos Einbruchsicherung",
+          "type": "boolean"
+        }
+      },
+      "title": "WohnungGroup",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "bad": {
+      "$ref": "#/$defs/BadGroup"
+    },
+    "kueche": {
+      "$ref": "#/$defs/KuecheGroup"
+    },
+    "wohnung": {
+      "$ref": "#/$defs/WohnungGroup"
+    },
+    "gebaeude": {
+      "$ref": "#/$defs/GebaeudeGroup"
+    },
+    "umfeld": {
+      "$ref": "#/$defs/WohnumfeldGroup"
+    }
+  },
+  "title": "MietspiegelEvaluation",
+  "type": "object"
+}
